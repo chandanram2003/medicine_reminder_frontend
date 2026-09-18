@@ -71,7 +71,7 @@ function UpdateMedicine() {
         const responses = await Promise.all(
           updateIds.map((medicineId) =>
             axios.get(
-              `http://localhost:5000/api/medicines/singleUser/${medicineId}`,
+              `${import.meta.env.VITE_BASE_URL}/api/medicines/singleUser/${medicineId}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -198,7 +198,7 @@ function UpdateMedicine() {
       const responses = await Promise.all(
         medicines.map((medicine) =>
           axios.put(
-            `http://localhost:5000/api/medicines/update/${medicine._id}`,
+            `https://medicine-reminder-w53k.onrender.com/api/medicines/update/${medicine._id}`,
             {
               name: medicine.name.trim(),
               dose: medicine.dose.trim(),

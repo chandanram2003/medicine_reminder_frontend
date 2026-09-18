@@ -109,7 +109,7 @@ function AddMedicine() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/medicines/add",
+        `${import.meta.env.VITE_BASE_URL}/api/medicines/add`,
         data,
         {
           headers: {

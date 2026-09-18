@@ -32,7 +32,7 @@ function MedicineTable() {
       }
 
       const response = await axios.get(
-        `http://localhost:5000/api/medicines/${userId}`,
+        `${import.meta.env.VITE_BASE_URL}/api/medicines/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,7 +86,8 @@ function MedicineTable() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/medicines/${id}`,
+        `
+https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -126,7 +127,7 @@ function MedicineTable() {
       await Promise.all(
         selectedMedicines.map((id) =>
           axios.delete(
-            `http://localhost:5000/api/medicines/${id}`,
+            `https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -156,7 +157,7 @@ function MedicineTable() {
       // 1. CALL BACKEND API
       // -------------------------
       const response = await axios.put(
-        "http://localhost:5000/api/medicines/set-reminder",
+        "https://medicine-reminder-w53k.onrender.com/api/medicines/set-reminder",
         {
           medicineId: medicine._id,
         },
@@ -297,7 +298,7 @@ function MedicineTable() {
       await Promise.all(
         selectedMedicineList.map((medicine) =>
           axios.put(
-            "http://localhost:5000/api/medicines/set-reminder",
+            "https://medicine-reminder-w53k.onrender.com/api/medicines/set-reminder",
             {
               medicineId: medicine._id,
             },

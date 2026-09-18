@@ -29,7 +29,7 @@ function Dashboard() {
         }
 
         const response = await axios.get(
-          `http://localhost:5000/api/medicines/${userId}`
+          `${import.meta.env.VITE_BASE_URL}/api/medicines/${userId}`
         );
 
         const medicineData = response.data.medicines || [];

@@ -5,7 +5,7 @@ const logoutUser = async () => {
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-      "http://localhost:5000/api/users/logout",
+      `${import.meta.env.VITE_BASE_URL}/api/users/logout`,
       {},
       {
         headers: {

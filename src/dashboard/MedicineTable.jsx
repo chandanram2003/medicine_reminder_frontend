@@ -86,8 +86,7 @@ function MedicineTable() {
 
     try {
       const response = await axios.delete(
-        `
-https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
+        `${import.meta.env.VITE_BASE_URL}/api/medicines/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -127,7 +126,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
       await Promise.all(
         selectedMedicines.map((id) =>
           axios.delete(
-            `https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
+            `${import.meta.env.VITE_BASE_URL}/api/medicines/${id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -153,11 +152,9 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
   // =========================
   const handleSetReminder = async (medicine) => {
     try {
-      // -------------------------
-      // 1. CALL BACKEND API
-      // -------------------------
+      // 1. BACKEND API
       const response = await axios.put(
-        "https://medicine-reminder-w53k.onrender.com/api/medicines/set-reminder",
+        `${import.meta.env.VITE_BASE_URL}/api/medicines/set-reminder`,
         {
           medicineId: medicine._id,
         },
@@ -170,9 +167,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 
       console.log("Set Reminder API:", response.data);
 
-      // -------------------------
       // 2. BROWSER NOTIFICATION
-      // -------------------------
       if (!("Notification" in window)) {
         toast.error("Browser notification supported nahi hai");
         return;
@@ -189,9 +184,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         return;
       }
 
-      // -------------------------
       // 3. CALCULATE REMINDER TIME
-      // -------------------------
       const now = new Date();
 
       const [hours, minutes] = medicine.time.split(":");
@@ -205,8 +198,6 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         0
       );
 
-      // Agar aaj ka time nikal chuka hai
-      // to kal reminder hoga
       if (reminderTime <= now) {
         reminderTime.setDate(
           reminderTime.getDate() + 1
@@ -216,9 +207,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
       const delay =
         reminderTime.getTime() - now.getTime();
 
-      // -------------------------
       // 4. BROWSER TIMER
-      // -------------------------
       const timer = setTimeout(() => {
         new Notification("💊 Medicine Reminder", {
           body: `Time to take ${medicine.name} - ${medicine.dose}`,
@@ -233,9 +222,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         });
       }, delay);
 
-      // -------------------------
       // 5. SAVE TIMER
-      // -------------------------
       setReminders((prev) => ({
         ...prev,
         [medicine._id]: timer,
@@ -245,9 +232,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         `SMS sent & reminder set for ${medicine.name} at ${medicine.time}`
       );
 
-      // Database se latest data fetch
       getMedicines();
-
     } catch (error) {
       console.error(
         "Set Reminder Error:",
@@ -256,7 +241,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 
       toast.error(
         error.response?.data?.message ||
-        "Failed to set reminder"
+          "Failed to set reminder"
       );
     }
   };
@@ -292,13 +277,11 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
     );
 
     try {
-      // -------------------------
-      // CALL API FOR EVERY MEDICINE
-      // -------------------------
+      // CALL API
       await Promise.all(
         selectedMedicineList.map((medicine) =>
           axios.put(
-            "https://medicine-reminder-w53k.onrender.com/api/medicines/set-reminder",
+            `${import.meta.env.VITE_BASE_URL}/api/medicines/set-reminder`,
             {
               medicineId: medicine._id,
             },
@@ -311,9 +294,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         )
       );
 
-      // -------------------------
       // SET BROWSER REMINDERS
-      // -------------------------
       selectedMedicineList.forEach((medicine) => {
         if (reminders[medicine._id]) {
           return;
@@ -369,7 +350,6 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
       setSelectedMedicines([]);
 
       getMedicines();
-
     } catch (error) {
       console.error(
         "Multiple Reminder Error:",
@@ -378,7 +358,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 
       toast.error(
         error.response?.data?.message ||
-        "Failed to set reminders"
+          "Failed to set reminders"
       );
     }
   };
@@ -407,55 +387,62 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0">
 
       {/* =========================
           HEADER
       ========================= */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col gap-3 mb-5">
 
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
           💊 Medicine List
         </h2>
 
+        {/* SELECTED ACTIONS */}
         {selectedMedicines.length > 0 && (
-          <div className="flex gap-2">
+          <div className="w-full bg-gray-50 border rounded-xl p-3">
 
-            {/* UPDATE SELECTED */}
-            <button
-              type="button"
-              onClick={handleMultipleUpdate}
-              className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition"
-            >
-              ✏ Update Selected (
-              {selectedMedicines.length}
-              )
-            </button>
+            <p className="text-sm text-gray-600 mb-2">
+              {selectedMedicines.length} medicine
+              {selectedMedicines.length > 1 ? "s" : ""} selected
+            </p>
 
-            {/* REMINDER */}
-            <button
-              type="button"
-              onClick={handleSetMultipleReminders}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
-            >
-              🔔 Set Reminder (
-              {selectedMedicines.length}
-              )
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
 
-            {/* DELETE */}
-            <button
-              type="button"
-              onClick={handleDeleteSelected}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
-            >
-              🗑 Delete Selected (
-              {selectedMedicines.length}
-              )
-            </button>
+              {/* UPDATE */}
+              <button
+                type="button"
+                onClick={handleMultipleUpdate}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-lg transition text-sm font-medium"
+              >
+                ✏ Update Selected (
+                {selectedMedicines.length})
+              </button>
 
+              {/* REMINDER */}
+              <button
+                type="button"
+                onClick={handleSetMultipleReminders}
+                className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg transition text-sm font-medium"
+              >
+                🔔 Set Reminder (
+                {selectedMedicines.length})
+              </button>
+
+              {/* DELETE */}
+              <button
+                type="button"
+                onClick={handleDeleteSelected}
+                className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-lg transition text-sm font-medium"
+              >
+                🗑 Delete Selected (
+                {selectedMedicines.length})
+              </button>
+
+            </div>
           </div>
         )}
+
       </div>
 
       {/* =========================
@@ -466,6 +453,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
         <table className="w-full border-collapse">
 
           <thead className="bg-blue-600 text-white sticky top-0 z-10">
+
             <tr>
 
               <th className="p-3 text-center w-12">
@@ -502,6 +490,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
               </th>
 
             </tr>
+
           </thead>
 
           <tbody>
@@ -548,17 +537,23 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
                     {medicine.time}
                   </td>
 
-                  {/* REMINDER STATUS */}
+                  {/* REMINDER */}
                   <td className="p-3 text-center">
+
                     {medicine.reminderEnabled ? (
+
                       <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                         ON
                       </span>
+
                     ) : (
+
                       <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
                         OFF
                       </span>
+
                     )}
+
                   </td>
 
                   {/* ACTION */}
@@ -622,12 +617,14 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
             ) : (
 
               <tr>
+
                 <td
                   colSpan="6"
                   className="text-center py-8 text-gray-500"
                 >
                   No medicines found.
                 </td>
+
               </tr>
 
             )}
@@ -641,7 +638,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
       {/* =========================
           MOBILE
       ========================= */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-4 w-full">
 
         {user.medicines.length > 0 ? (
 
@@ -649,55 +646,65 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 
             <div
               key={medicine._id}
-              className="bg-white border rounded-xl shadow-sm p-3"
+              className={`bg-white border rounded-xl shadow-sm p-3 sm:p-4 w-full transition ${
+                selectedMedicines.includes(medicine._id)
+                  ? "border-blue-500 ring-1 ring-blue-200"
+                  : "border-gray-200"
+              }`}
             >
 
-              <div className="flex items-center justify-between mb-4">
+              {/* MEDICINE HEADER */}
+              <div className="flex items-start gap-3 mb-4">
 
-                <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedMedicines.includes(
+                    medicine._id
+                  )}
+                  onChange={() =>
+                    handleSelect(medicine._id)
+                  }
+                  className="w-5 h-5 mt-1 shrink-0 cursor-pointer accent-blue-600"
+                />
 
-                  <input
-                    type="checkbox"
-                    checked={selectedMedicines.includes(
-                      medicine._id
+                <div className="flex-1 min-w-0">
+
+                  <div className="flex flex-wrap items-center gap-2">
+
+                    <h3 className="text-base sm:text-lg font-bold text-gray-800 break-words">
+                      💊 {medicine.name}
+                    </h3>
+
+                    {medicine.reminderEnabled && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full whitespace-nowrap">
+                        Reminder ON
+                      </span>
                     )}
-                    onChange={() =>
-                      handleSelect(medicine._id)
-                    }
-                    className="w-4 h-4 cursor-pointer"
-                  />
 
-                  <h3 className="text-lg font-bold text-gray-800">
-                    💊 {medicine.name}
-                  </h3>
+                  </div>
 
                 </div>
 
-                {medicine.reminderEnabled && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                    Reminder ON
-                  </span>
-                )}
-
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* DOSE + TIME */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
 
-                <div className="bg-blue-50 rounded-lg p-3">
+                <div className="bg-blue-50 rounded-lg p-3 min-w-0">
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mb-1">
                     Dose
                   </p>
 
-                  <p className="font-semibold text-blue-700">
+                  <p className="font-semibold text-blue-700 break-words">
                     {medicine.dose}
                   </p>
 
                 </div>
 
-                <div className="bg-purple-50 rounded-lg p-3">
+                <div className="bg-purple-50 rounded-lg p-3 min-w-0">
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mb-1">
                     Time
                   </p>
 
@@ -709,7 +716,8 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              {/* MOBILE ACTIONS */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
 
                 {/* REMINDER */}
                 <button
@@ -721,7 +729,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
                     medicine.reminderEnabled ||
                     !!reminders[medicine._id]
                   }
-                  className={`w-full py-2 rounded-lg text-white text-sm ${
+                  className={`w-full py-2.5 px-2 rounded-lg text-white text-sm font-medium ${
                     medicine.reminderEnabled ||
                     reminders[medicine._id]
                       ? "bg-gray-400"
@@ -740,7 +748,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
                   onClick={() =>
                     handleUpdate(medicine._id)
                   }
-                  className="w-full py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm"
+                  className="w-full py-2.5 px-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium"
                 >
                   ✏ Update
                 </button>
@@ -751,7 +759,7 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
                   onClick={() =>
                     handleDelete(medicine._id)
                   }
-                  className="w-full py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm"
+                  className="w-full py-2.5 px-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
                 >
                   🗑 Delete
                 </button>
@@ -777,3 +785,4 @@ https://medicine-reminder-w53k.onrender.com/api/medicines/${id}`,
 }
 
 export default MedicineTable;
+

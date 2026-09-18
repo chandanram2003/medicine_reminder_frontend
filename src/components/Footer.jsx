@@ -35,11 +35,11 @@ function Footer() {
             </h3>
 
             <p className="mt-3 text-gray-400">
-              support@gmail.com
+              ck660405@gmail.com
             </p>
 
             <p className="text-gray-400">
-              +91 9876543210
+              +91 8960759313
             </p>
           </div>
 
